@@ -1,0 +1,119 @@
+﻿@page "/chart"
+@using Interfaces
+@using Model
+@using ChartJs.Blazor
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Common.Axes
+@using ChartJs.Blazor.Common.Axes.Ticks
+@using ChartJs.Blazor.Common.Enums
+@using ChartJs.Blazor.Common.Handlers
+@using ChartJs.Blazor.Common.Time
+@using ChartJs.Blazor.Util
+@using ChartJs.Blazor.Interop
+@using ChartJs.Blazor.PieChart
+
+@inject IGastosServicio GastoServicio
+
+
+<p>@Mensaje</p>
+
+@if(gastos == null)
+{
+    <p><em>Cargando...</em></p>
+} else
+{
+    <div class="mb-3">
+        <div class="row">
+            <div class="col-12 container-plain" >
+                <Chart @ref="_pieChartJs" Config="_config">
+
+                </Chart>
+            </div>
+        </div>
+    </div>
+
+   
+}
+
+@code {
+
+    public IEnumerable<Gastos> gastos { get; set; }
+    public string Mensaje { get; set; }
+
+    private PieConfig _config;
+    private Chart _pieChartJs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            gastos = await GastoServicio.GetAllGastos();
+        }
+        catch (Exception ex)
+        {
+            Mensaje = ex.Message;
+        }
+        _config = new PieConfig
+            {
+                Options = new PieOptions
+                {
+                    Responsive = true,
+                    Title = new OptionsTitle
+                    {
+                        Display = true,
+                        Text = "Gastos e Ingresos"
+                    },
+                    Animation = new ArcAnimation
+                    {
+                        AnimateRotate = true,
+                        AnimateScale = true
+                    },
+                }
+            };
+
+        foreach (var gasto in gastos.GroupBy(g => g.Categoria.DescCategoria).Select(grp => grp.First()))
+        {
+            _config.Data.Labels.Add(gasto.Categoria.DescCategoria);
+        }
+        var pieSet = new PieDataset<double>(gastos.GroupBy(g => g.CategoriaId)
+                .Select(ec => ec.Sum(c => Convert.ToDouble(c.Monto)))
+                .ToArray())
+        {
+
+                BackgroundColor = new[]
+                {
+                "#336699", // Azul oscuro
+                "#6495ED", // Azul medio
+                "#ADD8E6", // Azul claro
+
+                "#8A2BE2", // Violeta oscuro
+                "#BA55D3", // Violeta medio
+                "#E6E6FA", // Violeta claro
+
+
+                "#8abd97", 
+                "#539163",
+                "#b1e3be",
+
+                "#FF7F50", // Naranja oscuro
+                "#FFA500", // Naranja medio
+                "#FFDAB9",  // Naranja claro
+                "#a33f2a",
+                "#b01f17",
+                "#d9534f",
+            },
+            BorderWidth = 0,
+            HoverBackgroundColor = new[]
+            {
+                "#333333"
+            },
+            HoverBorderColor = ColorUtil.RandomColorString(),
+            HoverBorderWidth = 1,
+            BorderColor = "#ffffff"
+        };
+
+
+
+        _config.Data.Datasets.Add(pieSet);
+    }
+}

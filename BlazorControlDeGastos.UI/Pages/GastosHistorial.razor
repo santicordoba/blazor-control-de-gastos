@@ -1,0 +1,216 @@
+﻿@page "/historial-de-gastos"
+@using ClosedXML.Excel;
+@using Microsoft.AspNetCore.Mvc;
+@using Model
+@using Interfaces
+@using Microsoft.JSInterop
+@inject IGastosServicio GastosServicio
+@inject IJSRuntime JSRuntime
+
+<h3>Historial</h3>
+<p>@Mensaje</p>
+
+@if(gastos == null)
+{
+    <p><em>Cargando...</em></p>
+} else if(gastos.Count() == 0)
+{
+    <p><em>No hay gastos...</em></p>
+} else
+{
+    <table class="table table-bordered table-light table-hover">
+        <thead>
+            <tr>
+                <th @onclick='(() => OrdenarColumna("Fecha"))'>
+                    Fecha
+                    @if (columnaOrdenada == "Fecha")
+                    {
+                        <span>@(ordenAscendente ? "\u25B2" : "\u25BC")</span>
+                    }
+                </th>
+                <th @onclick='(() => OrdenarColumna("Monto"))'>
+                    Monto
+                    @if (columnaOrdenada == "Monto")
+                    {
+                        <span>@(ordenAscendente ? "\u25B2" : "\u25BC")</span>
+                    }
+                </th>
+                <th @onclick='(() => OrdenarColumna("Categoria"))'>
+                    Categoria
+                    @if (columnaOrdenada == "Categoria")
+                    {
+                        <span>@(ordenAscendente ? "\u25B2" : "\u25BC")</span>
+                    }
+                </th>
+                <th @onclick='(() => OrdenarColumna("Tipo"))'>
+                    Tipo
+                    @if (columnaOrdenada == "Tipo")
+                    {
+                        <span>@(ordenAscendente ? "\u25B2" : "\u25BC")</span>
+                    }
+                </th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+
+                @foreach(var gasto in gastosOrdenados)
+            {
+                <tr @onclick="@(()=> SeleccionarGasto(gasto.Id))">
+                <td>@gasto.Fecha.ToShortDateString()</td>
+                <td class="@GetTextColor(gasto.Id)">@gasto.Monto</td>
+                <td>@gasto.Categoria.DescCategoria</td>
+                <td>@gasto.TipoGasto</td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+
+    <button @onclick="DescargarExcel" class="btn btn-success">Descargar Excel</button>
+
+}
+
+@code {
+
+    public IEnumerable<Gastos> gastos { get; set; }
+    private IEnumerable<Gastos> gastosOrdenados; // Lista de gastos ordenados auxiliar
+    public string Mensaje { get; set; }
+    public string columnaOrdenada { get; set; }
+    private bool ordenAscendente = true;
+
+
+    [CascadingParameter]
+    protected Gastos GastoSeleccionado { get; set; }
+
+    // Se ejecuta cuando se clickea un gasto de la tabla historial
+    protected async Task SeleccionarGasto(int gastoId)
+    {
+        var gasto = await GastosServicio.GetGasto(gastoId);
+        /**
+         * GastoSeleccionado es un objeto con 
+         * el cual se puede compartir información entre componentes
+         * por CascadingParameter
+         * Al clickear un gasto de la tabla historial,
+         * se setea el gasto seleccionado en el objeto GastoSeleccionado
+         * para que el componente GastosDetalles pueda mostrarlo
+         * */
+        GastoSeleccionado.SetearGastoSeleccionado(gasto);
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        try
+        {
+            gastos = await GastosServicio.GetAllGastos();
+            if(gastosOrdenados == null)
+            {
+                gastosOrdenados = new List<Gastos>();
+                gastosOrdenados = gastos;
+            } else
+            {
+                // Cuando la tabla gastos se actualiza por un nuevo gasto o una actualizacion
+                // Se debe actualizar la tabla gastosOrdenados y mantener el mismo orden que tenia
+                gastosOrdenados = gastos;
+                OrdenarColumna(columnaOrdenada, 1);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
+    protected string GetTextColor(int gastoId)
+    {
+        var gasto = gastos.FirstOrDefault(g => g.Id == gastoId);
+        return gasto.TipoGasto == TipoGasto.Ingreso ? "text-success" : "text-danger";
+    }
+
+    private void OrdenarColumna(string columna, int tipo = 0)
+    {
+        if (columnaOrdenada == columna)
+        {
+            if(tipo == 0)
+            {
+                // Si se clickea para ordenar la tabla desde los headers
+                ordenAscendente = !ordenAscendente;
+            }
+
+            // sino entra al if tipo == 0 se esta ordenando de nuevo la tabla manteniendo el orden anterior
+            // esto es cuando se debe actualizar la tabla porque se actualizo o se agrego un nuevo gasto
+        }
+        else
+        {
+            columnaOrdenada = columna;
+            ordenAscendente = true;
+        }
+
+        switch (columna)
+        {
+            case "Fecha":
+                gastosOrdenados = ordenAscendente ? gastos.OrderBy(g => g.Fecha) : gastos.OrderByDescending(g => g.Fecha);
+                break;
+            case "Monto":
+                gastosOrdenados = ordenAscendente ? gastos.OrderBy(g => g.Monto) : gastos.OrderByDescending(g => g.Monto);
+                break;
+            case "Categoria":
+                gastosOrdenados = ordenAscendente ? gastos.OrderBy(g => g.Categoria.DescCategoria) : gastos.OrderByDescending(g => g.Categoria.DescCategoria);
+                break;
+            case "Tipo":
+                gastosOrdenados = ordenAscendente ? gastos.OrderBy(g => g.TipoGasto) : gastos.OrderByDescending(g => g.TipoGasto);
+                break;
+        }
+    }
+
+
+    private async void DescargarExcel()
+    {
+        string inicioLetra;
+        int inicioNumero = 3;
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.Worksheets.Add("Gastos");
+            worksheet.Cell("B2").Value = "Fecha";
+            worksheet.Cell("C2").Value = "Monto";
+            worksheet.Cell("D2").Value = "Categoria";
+            worksheet.Cell("E2").Value = "Tipo";
+
+            var Encabezado = worksheet.Range("B2:E2");
+            Encabezado.Style.Font.Bold = true;
+            Encabezado.Style.Fill.BackgroundColor = XLColor.LightGray;
+            Encabezado.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            Encabezado.Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
+            
+            // ajustar ancho encabezados
+            worksheet.Column(2).Width = 15;
+            worksheet.Column(3).Width = 15;
+            worksheet.Column(4).Width = 25;
+            worksheet.Column(5).Width = 15;
+
+            
+
+            foreach (var gasto in gastosOrdenados)
+            {
+                inicioLetra = "B";
+                var arr = new string[] { gasto.Fecha.ToShortDateString(), gasto.Monto.ToString(), gasto.Categoria.DescCategoria, gasto.TipoGasto.ToString() };
+                for (int i = 0; i < 4; i++)
+                {
+                    worksheet.Cell(inicioLetra + inicioNumero).Value = arr[i];
+                    inicioLetra = ((char)(inicioLetra[0] + 1)).ToString();
+                }
+                inicioNumero++;
+            }
+
+            using(var memoria = new MemoryStream())
+            {
+                workbook.SaveAs(memoria);
+                var nombreExcel = $"Gastos_{DateTime.Now.ToString("yyyyMMddHHmmssfff")}.xlsx";
+                await JSRuntime.InvokeVoidAsync("DescargarArchivo", nombreExcel, Convert.ToBase64String(memoria.ToArray()));
+            }
+        }
+    }
+
+}

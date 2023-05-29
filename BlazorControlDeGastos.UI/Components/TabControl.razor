@@ -1,0 +1,54 @@
+﻿@using BlazorControlDeGastos.Model;
+
+
+<div class="btn-group" role="group">
+    @foreach(TabPage item in Paginas)
+    {
+        <button type="button" class="btn @SetButtonClass(item)" @onclick=@(() => ActivarPagina(item))>
+            @item.TituloPagina
+        </button>
+    }
+</div>
+
+<CascadingValue Value="this">
+
+    @ChildContent
+
+</CascadingValue>
+
+@code {
+    // Este parametro va a recibir cada tabpge que se agregue en el tabcontrol
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public TabPage PaginaActiva { get; set; }
+
+    public List<TabPage> Paginas = new List<TabPage>();
+
+    public void AgregarPagina(TabPage pagina)
+    {
+        Paginas.Add(pagina);
+        if(Paginas.Count == 1)
+        {
+            PaginaActiva = pagina;
+        }
+        StateHasChanged();
+    }
+
+    protected string SetButtonClass(TabPage pagina)
+    {
+        if(pagina == PaginaActiva)
+        {
+            return "btn-primary";
+        }
+        else
+        {
+            return "btn-secondary";
+        }
+    }
+
+    protected void ActivarPagina(TabPage pagina)
+    {
+        PaginaActiva = pagina;
+    }
+}

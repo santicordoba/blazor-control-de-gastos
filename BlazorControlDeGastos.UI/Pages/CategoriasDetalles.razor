@@ -1,0 +1,76 @@
+﻿@page "/categorias-detalles"
+@page "/categorias-detalles/{Id:int}"
+@using Model;
+@using Interfaces
+@inject ICategoriaServicio CategoriaServicio
+@inject NavigationManager NavigationManager
+
+<div class="modal" tabindex="-1" style="display:block" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @if (Id == 0)
+                {
+                    <h3>Nueva Categoria</h3>
+                }
+                else
+                {
+                    <h3>Editar Categoria</h3>
+                }
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@categoria" OnValidSubmit="GuardarCategoria">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3 form-group">
+                        <label for="DescCategoria" class="form-label">Nombre</label>
+                        <input type="text" @bind="categoria.DescCategoria" class="form-control" id="DescCategoria" placeholder="Ingrese un nombre para una categoria">
+                        <ValidationMessage For="@(() => categoria.DescCategoria)" />
+                    </div>
+                    <div class="mb-3">
+                        <input type="submit" class="btn btn-primary" value="Guardar" />
+                        <input type="button" @onclick="Cancelar" class="btn btn-secondary" value="Cancelar" />
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    
+
+    
+</div>
+
+
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    Categoria categoria = new Categoria();
+
+    protected async Task GuardarCategoria()
+    {
+        await CategoriaServicio.SaveCategoria(categoria);
+        VolverACategorias();
+    }
+
+    public void Cancelar()
+    {
+        VolverACategorias();
+    }
+
+    public void VolverACategorias()
+    {
+        NavigationManager.NavigateTo("/categorias");
+    }
+
+    protected async override Task OnInitializedAsync()
+        {
+            if (Id != 0)
+            {
+                categoria = await CategoriaServicio.GetCategoria(Id);
+            }
+        }
+
+}

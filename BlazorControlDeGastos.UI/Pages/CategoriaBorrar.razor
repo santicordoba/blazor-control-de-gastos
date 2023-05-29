@@ -1,0 +1,53 @@
+﻿@page "/categoria-borrar/{Id:int}"
+@using BlazorControlDeGastos.Model;
+@using Interfaces
+@inject ICategoriaServicio CategoriaServicio
+@inject NavigationManager NavigationManager
+
+
+<div class="modal" tabindex="-1" style="display:block" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>¿Desea borrar @categoria.DescCategoria?</h3>
+            </div>
+            <div class="modal-body">
+                <button type="button" class="btn btn-primary" @onclick="BorrarCategoria">Borrar</button>
+                <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    Categoria categoria = new Categoria();
+
+    protected async override Task OnInitializedAsync()
+    {
+        if(Id != 0)
+        {
+            categoria = await CategoriaServicio.GetCategoria(Id);
+        }
+    }
+
+    public async Task BorrarCategoria()
+    {
+        await CategoriaServicio.DeleteCategoria(Id);
+        VolverACategorias();
+    }
+
+    public void Cancelar()
+    {
+        VolverACategorias();
+    }
+
+    public void VolverACategorias()
+    {
+        NavigationManager.NavigateTo("/categorias");
+    }
+
+}

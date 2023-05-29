@@ -1,0 +1,124 @@
+﻿@using Interfaces
+@using Model
+@inject ICategoriaServicio CategoriaServicio
+@inject IGastosServicio GastosServicio
+@inject IJSRuntime JSRuntime
+
+<EditForm Model="@gasto" OnValidSubmit="GuardarGasto">
+    <DataAnnotationsValidator />
+    <table class="table">
+        <tbody>
+            <tr>
+            <td>Monto: </td>
+            <td>
+                <div class="col-sm-5">
+                <InputNumber class="form-control col-sm-4" @bind-Value="@gasto.Monto" />
+                <ValidationMessage For="@(() => gasto.Monto)" />
+                    </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Fecha: </td>
+            <td>
+                <div class="col-sm-5">
+                <InputDate class="form-control col-sm-5" @bind-Value="@gasto.Fecha" />
+                <ValidationMessage For="@(() => gasto.Fecha)" />
+                    </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Categoria: </td>
+            <td>
+                <div class="col-sm-5">
+                <InputSelect class="form-control col-sm-5" @bind-Value="@gasto.CategoriaId">
+                        @foreach (var categoria in categorias)
+                        {
+                            <option value="@categoria.Id">@categoria.DescCategoria</option>
+                        })
+                </InputSelect>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Tipo</td>
+            <td>
+                <div class="col-sm-5">
+                <InputSelect class="form-control col-sm-5" disabled="true" @bind-Value="@gasto.TipoGasto">
+                    <option value="@(TipoGasto.Ingreso)">Ingreso</option>
+                    <option value="@(TipoGasto.Gasto)">Gasto</option>
+                </InputSelect>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center;">
+                <button type="submit" class="btn btn-success">@((gasto.Id == 0) ? "Guardar" : "Actualizar")</button>
+                <button type="button" class="btn btn-secondary" style="@SetEstiloBotonCancelar()" @onclick="@Cancelar">Cancelar</button>
+                <button type="button" class="btn btn-danger" style="@SetEstiloBotonCancelar()" @onclick="@BorrarGasto">Borrar</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</EditForm>
+
+@code {
+    [Parameter]
+    public TipoGasto Tipo { get; set; }
+
+    [CascadingParameter]
+    protected Gastos gasto { get; set; }
+
+    private IEnumerable<Categoria> categorias = new List<Categoria>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        categorias = await CategoriaServicio.GetAllCategorias();
+
+        if(gasto.Id == 0)
+        {
+            // Es un nuevo gasto
+            gasto.CategoriaId = categorias.FirstOrDefault().Id;
+            gasto.Fecha = DateTime.Now;
+            gasto.TipoGasto = Tipo; 
+        }
+    }
+
+    protected async Task GuardarGasto()
+    {
+        await GastosServicio.SaveGasto(gasto);
+        LimpiarGasto();
+        gasto.SetearGastoSeleccionado(gasto);
+    }
+
+    protected async Task BorrarGasto()
+    {
+        bool confirmado = await JSRuntime.InvokeAsync<bool>("confirm", "¿Desea borrar el gasto?");
+        if(confirmado)
+        {
+            await GastosServicio.DeleteGasto(gasto.Id);
+            LimpiarGasto();
+            gasto.SetearGastoSeleccionado(gasto);
+        }
+    }
+
+    protected string SetEstiloBotonCancelar()
+    {
+        return gasto.Id == 0 ? "display:none" : "";
+    }
+
+    public void Cancelar()
+    {
+        LimpiarGasto();
+    }
+
+    private void LimpiarGasto()
+    {
+        gasto.Id = 0;
+        gasto.Monto = 0;
+        gasto.Fecha = DateTime.Now;
+        gasto.CategoriaId = categorias.FirstOrDefault().Id;
+        gasto.TipoGasto = Tipo;
+    }
+
+}

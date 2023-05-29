@@ -1,0 +1,29 @@
+﻿
+@if(Parent.PaginaActiva == this)
+{
+    @ChildContent
+}
+
+
+
+@code {
+    [CascadingParameter]
+    private TabControl Parent { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string TituloPagina { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (Parent == null)
+        {
+            throw new ArgumentNullException(nameof(Parent), "Alguna TabPage debe ser el padre de un TabControl");
+        }
+        Parent.AgregarPagina(this);
+        return base.OnInitializedAsync();
+    }
+
+}

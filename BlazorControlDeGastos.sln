@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33414.496
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorControlDeGastos.UI", "BlazorControlDeGastos.UI\BlazorControlDeGastos.UI.csproj", "{B84DCB2A-6AF0-41D3-B96A-E3D64E9C4BEF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorControlDeGastos.Model", "BlazorControlDeGastos.Model\BlazorControlDeGastos.Model.csproj", "{B0CD55E7-F0B9-4F36-8A03-59DE718F6182}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorControlDeGastos.Data", "BlazorControlDeGastos.Data\BlazorControlDeGastos.Data.csproj", "{D1CABA06-8EE0-4FC7-9A4B-E194CC29C1C5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorControlDeGastos.API", "BlazorControlDeGastos.API\BlazorControlDeGastos.API.csproj", "{75A92D2D-720A-4A0A-B122-91FA92973555}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorControlDeGastos.BOT", "BlazorControlDeGastos.BOT\BlazorControlDeGastos.BOT.csproj", "{AF16AF19-51C0-4507-A969-B6E9B52D73DD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{75A92D2D-720A-4A0A-B122-91FA92973555} = {75A92D2D-720A-4A0A-B122-91FA92973555}
+		{B0CD55E7-F0B9-4F36-8A03-59DE718F6182} = {B0CD55E7-F0B9-4F36-8A03-59DE718F6182}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B84DCB2A-6AF0-41D3-B96A-E3D64E9C4BEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B84DCB2A-6AF0-41D3-B96A-E3D64E9C4BEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B84DCB2A-6AF0-41D3-B96A-E3D64E9C4BEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B84DCB2A-6AF0-41D3-B96A-E3D64E9C4BEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0CD55E7-F0B9-4F36-8A03-59DE718F6182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0CD55E7-F0B9-4F36-8A03-59DE718F6182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0CD55E7-F0B9-4F36-8A03-59DE718F6182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0CD55E7-F0B9-4F36-8A03-59DE718F6182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1CABA06-8EE0-4FC7-9A4B-E194CC29C1C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1CABA06-8EE0-4FC7-9A4B-E194CC29C1C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1CABA06-8EE0-4FC7-9A4B-E194CC29C1C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1CABA06-8EE0-4FC7-9A4B-E194CC29C1C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75A92D2D-720A-4A0A-B122-91FA92973555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75A92D2D-720A-4A0A-B122-91FA92973555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75A92D2D-720A-4A0A-B122-91FA92973555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75A92D2D-720A-4A0A-B122-91FA92973555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF16AF19-51C0-4507-A969-B6E9B52D73DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF16AF19-51C0-4507-A969-B6E9B52D73DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF16AF19-51C0-4507-A969-B6E9B52D73DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF16AF19-51C0-4507-A969-B6E9B52D73DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97B3B5A5-2ED9-44A6-8E3D-F020CDA33B13}
+	EndGlobalSection
+EndGlobal

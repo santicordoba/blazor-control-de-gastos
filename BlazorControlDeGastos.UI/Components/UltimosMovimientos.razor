@@ -1,0 +1,74 @@
+﻿@using Interfaces
+@using Model
+@inject IGastosServicio GastosServicio
+
+<p>@Mensaje</p>
+@if(gastos == null)
+{
+    <p><em>Cargando...</em></p>
+} else
+{
+
+            <div class="card">
+                <table class="table">
+                    <thead>
+                        <tr >
+                        <th class="text-center" colspan="3">
+                            ULTIMOS MOVIMIENTOS
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Categoria</th>
+                            <th>Monto</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var gasto in gastos.Take(5))
+                        {
+                            <tr>
+                                <td>@gasto.Fecha.ToShortDateString()</td>
+                                <td>@gasto.Categoria.DescCategoria</td>
+                                <td class="@SetColor(gasto.TipoGasto)">@gasto.Monto</td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+}
+
+@code {
+
+    public IEnumerable<Gastos> gastos { get; set; }
+    public string Mensaje { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            gastos = await GastosServicio.GetAllGastos();
+            // Ordenar por fecha y por Id
+            gastos = gastos.OrderByDescending(g => g.Fecha).ThenByDescending(g => g.Id).Take(5);
+        }
+            catch (Exception ex)
+            {
+                Mensaje = ex.Message;
+            }
+        }
+
+        private string SetColor(TipoGasto tipoGasto)
+        {
+            if (tipoGasto == TipoGasto.Gasto)
+            {
+                return "text-danger";
+            }
+            else
+            {
+                return "text-success";
+            }
+        }
+
+}

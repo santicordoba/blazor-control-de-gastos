@@ -1,0 +1,55 @@
+﻿@page "/categorias"
+@using Interfaces
+@inject ICategoriaServicio CategoriaServicio
+@using Model;
+
+<h3>Categorias</h3>
+<a href="/categorias-detalles" class="btn btn-success">Agregar Categoria Nueva</a>
+<p>@Mensaje</p>
+
+
+@if(categorias == null)
+{
+    <p><em>Cargando categorias...</em></p>
+} else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Descripcion</th>
+                <th colspan="2">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var categoria in categorias)
+            {
+                <tr>
+                    <td>@categoria.Id</td>
+                    <td>@categoria.DescCategoria</td>
+                    <td><a href="/categorias-detalles/@categoria.Id"><i>Editar</i></a></td>
+                    <td><a href="/categoria-borrar/@categoria.Id"><i>Borrar</i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+    public IEnumerable<Categoria> categorias { get; set; }
+    public string Mensaje { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            categorias = await CategoriaServicio.GetAllCategorias();
+        }
+        catch (Exception e)
+        {
+            Mensaje = e.Message;
+        }
+    }
+}
+

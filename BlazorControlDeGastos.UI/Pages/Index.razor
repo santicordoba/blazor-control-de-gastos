@@ -1,0 +1,38 @@
+﻿@page "/"
+@using BlazorControlDeGastos.UI.Components
+
+<PageTitle>Dashboard - Control de Gastos</PageTitle>
+
+<h1>Dashboard</h1>
+
+<div class="row">
+    <div class="col-7">
+        <PieChartComponent @key=actualizarComponentes></PieChartComponent>
+    </div>
+    <div class="col-4">
+        <div class="row d-flex justify-content-center">
+            <div class="col">
+                <div class="text-center">
+                    <button class="btn btn-success btn-lg" @onclick="ActualizarDashboard">Actualizar <i class="oi oi-reload"></i></button>
+                </div>
+            </div>
+            <div class="col-12">
+                <Balance @key=actualizarComponentes></Balance>
+            </div>
+            <div class="col-12">
+                <UltimosMovimientos @key=actualizarComponentes></UltimosMovimientos>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code
+{
+    bool actualizarComponentes = false;
+    protected void ActualizarDashboard()
+    {
+        actualizarComponentes = !actualizarComponentes;
+        
+    }
+}

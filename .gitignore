@@ -1,0 +1,5 @@
+.vs
+# Carpeta de salida de compilación
+**/bin/
+**/obj/
+

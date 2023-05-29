@@ -1,0 +1,62 @@
+﻿@using Interfaces
+@using Model
+@inject IGastosServicio GastoServicio
+
+<p>@Mensaje</p>
+
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="text-center">Balance</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text text-center">
+                    @if(BalanceTotal > 30000)
+                    {
+            <p class="fw-bold"> @valorAnimado $ 😄 </p>
+                    } else
+                    {
+            <p class="fw-bold"> @valorAnimado $ 😭 </p>
+                    }
+                </p>
+            </div>
+        </div>
+
+
+
+@code {
+
+    public IEnumerable<Gastos> gastos { get; set; }
+    public string Mensaje { get; set; }
+    public decimal BalanceTotal { get; set; }
+    private decimal valorAnimado { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            gastos = await GastoServicio.GetAllGastos();
+            decimal ingresos = gastos.Where(g=> g.TipoGasto == TipoGasto.Ingreso).Sum(x => x.Monto);
+            decimal egresos = gastos.Where(g => g.TipoGasto == TipoGasto.Gasto).Sum(x => x.Monto);
+            BalanceTotal = ingresos - egresos;
+            AnimarMonto();
+        }
+        catch (Exception ex)
+        {
+            Mensaje = ex.Message;
+        }
+    }
+
+    private async Task AnimarMonto()
+    {
+        while (valorAnimado < BalanceTotal)
+        {
+            valorAnimado += 300;
+            await Task.Delay(10);
+            StateHasChanged();
+        }
+        valorAnimado = BalanceTotal;
+        StateHasChanged();
+    }
+
+}

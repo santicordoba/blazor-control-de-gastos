@@ -1,0 +1,41 @@
+﻿@page "/control-de-gastos"
+@using BlazorControlDeGastos.UI.Components
+@using Model
+@implements IDisposable
+
+<h3>Control De Gastos</h3>
+
+<CascadingValue Value="gasto">
+
+
+    <TabControl>
+        <TabPage TituloPagina="➖ Gastos">
+            <GastosDetalles Tipo="@TipoGasto.Gasto">
+
+            </GastosDetalles>
+        </TabPage>
+        <TabPage TituloPagina="➕ Ingresos">
+            <GastosDetalles Tipo="@TipoGasto.Ingreso">
+
+            </GastosDetalles>
+        </TabPage>
+    </TabControl>
+
+    <GastosHistorial></GastosHistorial>
+</CascadingValue>
+
+@code {
+    public Gastos gasto;
+
+    protected override Task OnInitializedAsync()
+    {
+        gasto = new Gastos();
+        gasto.EventoSetearGastoSeleccionado += StateHasChanged;
+        return base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        gasto.EventoSetearGastoSeleccionado -= StateHasChanged;
+    }
+}
